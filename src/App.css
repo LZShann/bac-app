@@ -1,38 +1,60 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.App { 
+  background-color: #3b3a3b;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Add Expenses Part */
+.InputContainer {
+  background-color: #a892ee;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 20px;
+  width: 600px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.FlexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.FlexEnd {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ExpenseBTN {
+  background-color: #41045b;
+  border-radius: 15px;
+  color: white;
+  margin: 10px;
+  padding: 15px;
+  font-size: 13px;
+}
+
+/* Filter By Year Part */
+.FilterYear {
+  background-color: #1f1f1f;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 20px;
+  width: 600px;
+}
+
+.FilterYearSLCT {
+  border-radius: 10px;
+  margin: 10px;
+  padding: 5px;
+  font-size: 13px;
+  font-weight: bold;
+  width: 150px;
+  text-align: center;
+}
+
+.FilterYearTest {
+  padding-top: 15px;
 }
