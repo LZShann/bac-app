@@ -143,16 +143,17 @@ function App() {
       <div key={month}>
         {expenses.map((expense, index) => (
           <div key={index} className="">
-            <div className="row DisplayContainer">
-              <div className="col-2 DateBlock">
+            <div className="row DisplayContainer align-items-center">
+              <div className="col-sm-2 align-self-center DateBlock">
                   {format(parseISO(expense.date), 'dd MMM yyyy')}
               </div>
-              <div className="col-8">
+              <div className="col align-self-center">
                   <b>{expense.title}  </b>
               </div>
-              <div className="col-2 AmountBlock">
+              <div className="col align-self-center AmountBlock">
                 ${expense.amount}
               </div>
+              <div class="w-100 d-none d-md-block"></div>
             </div>
           </div>
         ))}
