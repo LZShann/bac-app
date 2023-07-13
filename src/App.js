@@ -1,6 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { Chart } from 'chart.js/auto';
+import { format, parseISO } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+
+function MonthlyTotalChart({ monthlyTotal }) {
+  const chartRef = useRef(null);
+  let chartInstance = null;
+
+  useEffect(() => {
+    const ctx = chartRef.current.getContext('2d');
+
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          {
+            label: 'Monthly Total Expenses',
+            data: monthlyTotal,
+            backgroundColor: 'rgba(195,180,243,255)',
+            borderColor: 'rgba(72,38,185,255)',
+            borderWidth: 1
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 500
+            },
+          },
+        },
+      },
+    });
+
+    return () => {
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+    };
+  }, [monthlyTotal]);
+
+  return (
+    <div className="my-4">
+      <canvas ref={chartRef}></canvas>
+    </div>
+  );
+}
 
 function App() {
   const [title, setTitle] = useState('');
@@ -10,46 +59,6 @@ function App() {
   const [selectedYear, setSelectedYear] = useState('');
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [showInput, setShowInput] = useState(false);
-
-  function MonthlyTotalChart({ monthlyTotal }) {
-    const chartRef = React.createRef();
-  
-    useEffect(() => {
-      const ctx = chartRef.current.getContext('2d');
-  
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-          datasets: [
-            {
-              label: 'Monthly Total Expenses',
-              data: monthlyTotal,
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 500,
-              },
-            },
-          },
-        },
-      });
-    }, [monthlyTotal]);
-  
-    return (
-      <div className="my-4">
-        <canvas ref={chartRef}></canvas>
-      </div>
-    );
-  }
 
   function openShowInput() {
     setShowInput(true);
@@ -73,10 +82,6 @@ function App() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    if (title.trim() === '' || amount.trim() === '' || date.trim() === '') {
-      return; // Do not submit empty form
-    }
 
     const newExpense = {
       title: title,
@@ -116,86 +121,123 @@ function App() {
     return monthlyTotal;
   };
 
+  const groupExpensesByMonth = (expenses) => {
+    const groupedExpenses = {};
+
+    expenses.forEach((expense) => {
+      const date = parseISO(expense.date);
+      const month = format(date, 'MMMM yyyy', { locale: enUS });
+
+      if (!groupedExpenses[month]) {
+        groupedExpenses[month] = [];
+      }
+
+      groupedExpenses[month].push(expense);
+    });
+
+    return groupedExpenses;
+  };
+
+  const renderExpensesByMonth = (expensesByMonth) => {
+    return Object.entries(expensesByMonth).map(([month, expenses]) => (
+      <div key={month}>
+        {expenses.map((expense, index) => (
+          <div key={index} className="">
+            <div className="row DisplayContainer">
+              <div className="col-2 DateBlock">
+                  {format(parseISO(expense.date), 'dd MMM yyyy')}
+              </div>
+              <div className="col-8">
+                  <b>{expense.title}  </b>
+              </div>
+              <div className="col-2 AmountBlock">
+                ${expense.amount}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ));
+  };
+
   return (
     <div className="App">
       <div className="">
         {showInput === false && (
-        <div className="InputContainer">
-          <div className="FlexCenter">
-            <button className="ExpenseBTN" onClick={openShowInput}>
-              Add New Expense
-            </button>
+          <div className="InputContainer">
+            <div className="FlexCenter">
+              <button className="ExpenseBTN" onClick={openShowInput}>
+                Add New Expense
+              </button>
+            </div>
           </div>
-        </div>
         )}
-        
+
         {showInput === true && (
-        <div className="InputContainer">
-        <form onSubmit={handleSubmit} className="my-2">
-          <div className="row">
-            <div className="col">
-              <label htmlFor="title" className="form-label text-body fw-bold">
-                Title:
-              </label>
-              <input
-                type="text"
-                id="title"
-                className="form-control"
-                value={title}
-                onChange={handleTitleChange}
-                required
-              />
-            </div>
-            <div className="col">
-              <label htmlFor="amount" className="form-label text-body fw-bold">
-                Amount:
-              </label>
-              <input
-                type="number"
-                id="amount"
-                className="form-control"
-                value={amount}
-                onChange={handleAmountChange}
-                required
-              />
-            </div>
-            <div className="col-1" />
+          <div className="InputContainer">
+            <form onSubmit={handleSubmit} className="my-2">
+              <div className="row">
+                <div className="col">
+                  <label htmlFor="title" className="form-label text-body fw-bold">
+                    Title:
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    className="form-control"
+                    value={title}
+                    onChange={handleTitleChange}
+                    required
+                  />
+                </div>
+                <div className="col">
+                  <label htmlFor="amount" className="form-label text-body fw-bold">
+                    Amount:
+                  </label>
+                  <input
+                    type="number"
+                    id="amount"
+                    className="form-control"
+                    value={amount}
+                    onChange={handleAmountChange}
+                    required
+                  />
+                </div>
+                <div className="col-1" />
+              </div>
+              <div className="row">
+                <div className="col">
+                  <label htmlFor="date" className="form-label text-body fw-bold">
+                    Date:
+                  </label>
+                  <input
+                    type="date"
+                    id="date"
+                    className="form-control"
+                    value={date}
+                    onChange={handleDateChange}
+                    required
+                  />
+                </div>
+                <div className="col" />
+                <div className="col-1" />
+              </div>
+              <div className="FlexEnd">
+                <button className="ExpenseBTN" onClick={closeShowInput}>
+                  Cancel
+                </button>
+                <button type="submit" className="ExpenseBTN">
+                  Add Expense
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="row">
-            <div className="col">
-              <label htmlFor="date" className="form-label text-body fw-bold">
-                Date:
-              </label>
-              <input
-                type="date"
-                id="date"
-                className="form-control"
-                value={date}
-                onChange={handleDateChange}
-                required
-              />
-            </div>
-            <div className="col" />
-            <div className="col-1" />
-          </div>
-          <div className="FlexEnd">
-            <button className="ExpenseBTN" onClick={closeShowInput}>
-              Cancel
-            </button>
-            <button type="submit" className="ExpenseBTN">
-              Add Expense
-            </button>
-          </div>
-        </form>
-        </div>
         )}
 
         <div className="FilterYear">
           <div className="row">
             <div className="col">
-              <div className="FilterYearTest">
-                Filter by year
-              </div>
+              <div className="FilterYearTest">Filter by year</div>
             </div>
             <div className="col">
               <div className="FlexEnd">
@@ -219,22 +261,16 @@ function App() {
             <div>Please select a year to view the monthly total expenses.</div>
           )}
 
-          <div className="FlexCenter">
-            <ul className="list-group list-group-horizontal">
+          <div>
+            <div>
               {filteredExpenses.length > 0 ? (
-                filteredExpenses.map((expense, index) => (
-                  <li key={index} className="list-group-item">
-                    {expense.date}   |||   ${expense.title}   |||   {expense.amount}
-                  </li>
-                ))
+                renderExpensesByMonth(groupExpensesByMonth(filteredExpenses))
               ) : (
-                <div className="mt-3">
-                  <h4>
-                    Found no expenses.
-                  </h4>
+                <div className="FlexCenter">
+                  <h4>Found no expenses.</h4>
                 </div>
               )}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

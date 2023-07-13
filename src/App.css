@@ -58,3 +58,33 @@
 .FilterYearTest {
   padding-top: 15px;
 }
+
+/* Display Expenses Blocks */
+.DisplayContainer {
+  background-color: #4b4b4b;
+  margin: 5px;
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 15px;
+  align-items: center;
+}
+
+.DateBlock {
+  background-color: #2a2a2a;
+  padding: 10px;
+  border: 1px solid #737373;
+  border-radius: 15px;
+  width: 5em;
+  text-align: center;
+}
+
+.AmountBlock {
+  background-color: #41045b;
+  border-radius: 15px;
+  color: white;
+  padding: 10px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: center;
+  direction: rtl;
+}
